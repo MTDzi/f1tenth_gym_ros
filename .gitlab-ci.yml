@@ -1,0 +1,19 @@
+stages:
+  - build
+  - test
+
+
+hello world:
+  stage: build
+  script:
+    - echo "hello world"
+
+
+run ros:
+  image: ros:melodic-robot-bionic
+  stage: test
+  script:
+    - mkdir catkin_ws
+    - cd catkin_ws
+    - catkin_init_workspace
+
