@@ -7,7 +7,7 @@ class Agent(object):
         # TODO: load waypoints from csv
         self.waypoints = None
         self.safe_speed = 0.5
-        
+
     def plan(self, obs):
         pass
 
