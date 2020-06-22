@@ -1,17 +1,17 @@
 import numpy as np
-from numba import njit
+# from numba import njit
 
 
 EPSILON = 0.00000000001
 
-@njit(fastmath=False, cache=True)
+# @njit(fastmath=False, cache=True)
 def get_rotation_matrix(theta):
     c, s = np.cos(theta), np.sin(theta)
     return np.array([[c, -s], [s, c]])
 
 
 # finds the nearest point on the given line segment connecting start and end
-    # all arguments should be numpy arrays
+# all arguments should be numpy arrays
 def nearest_point_on_line_segment(point, start, end):
     '''
     Return the nearest point along the line segment connecting start and end.
@@ -34,7 +34,7 @@ def nearest_point_on_line_segment(point, start, end):
     return projection, t
 
 
-@njit(fastmath=False, cache=True)
+#@njit(fastmath=False, cache=True)
 def nearest_point_on_trajectory_py2(point, trajectory):
     '''
     Return the nearest point along the given piecewise linear trajectory.
@@ -68,7 +68,7 @@ def nearest_point_on_trajectory_py2(point, trajectory):
     min_dist_segment = np.argmin(dists)
     return projections[min_dist_segment], dists[min_dist_segment], t[min_dist_segment], min_dist_segment
 
-@njit(fastmath=False, cache=True)
+#@njit(fastmath=False, cache=True)
 def first_point_on_trajectory_intersecting_circle(point, radius, trajectory, t=0.0, wrap=False):
     ''' starts at beginning of trajectory, and find the first point one radius away from the given point along the trajectory.
 
@@ -153,7 +153,8 @@ def first_point_on_trajectory_intersecting_circle(point, radius, trajectory, t=0
 
     # print min_dist_segment, dists[min_dist_segment], projections[min_dist_segment]
 
-@njit(fastmath=False, cache=True)
+
+#@njit(fastmath=False, cache=True)
 def get_actuation(pose_theta, lookahead_point, position, lookahead_distance, wheelbase):
     # waypoint_car = np.dot(get_rotation_matrix(-pose_theta), (lookahead_point[0:2]-position))
     # waypoint_y = waypoint_car[1]
@@ -172,6 +173,7 @@ def polar_to_euclid(coords):
     xs = ranges * np.cos(angles)
     ys = ranges * np.sin(angles)
     return (xs, ys)
+
 
 def angular_deflection_magnitude(points):
     # https://mail.python.org/pipermail/tutor/2007-July/055178.html
@@ -205,6 +207,7 @@ def angular_deflection_magnitude(points):
                 thetas[i-1] = np.arccos(inner)
     return thetas
 
+
 def piecewise_linear_local_waypoints_polar(points):
     thetas = angular_deflection_magnitude(points)
     # # compute the polar coordinate space local coordinate frame waypoints (r,theta)
@@ -222,6 +225,7 @@ def piecewise_linear_local_waypoints_polar(points):
     # local_points_cartesian[:,1] = local_points_polar[:,0] * np.sin(local_points_polar[:,1])
     # print local_points_cartesian
     # print local_points_polar
+
 
 class AckermannModel(object):
     """ A wrapper class for useful Ackermann steering geometry related functions
@@ -275,6 +279,7 @@ class AckermannModel(object):
         theta = polar_point[1]
         radius = polar_point[0]
         return np.arctan(2.0*self.L*np.sin(theta)/radius)
+
 
 def max_angle(min_turning_radius, radius):
     tr2 = 2.0*min_turning_radius

@@ -1,6 +1,17 @@
 import numpy as np
 import csv
-from agent_utils import get_actuation, nearest_point_on_trajectory_py2, first_point_on_trajectory_intersecting_circle
+
+import rospy
+from ackermann_msgs.msg import AckermannDriveStamped
+from nav_msgs.msg import Odometry
+from tf.transformations import euler_from_quaternion
+
+from agent_utils import (
+    get_actuation,
+    nearest_point_on_trajectory_py2,
+    first_point_on_trajectory_intersecting_circle,
+)
+
 
 class Agent(object):
     def __init__(self, csv_path):
@@ -13,42 +24,52 @@ class Agent(object):
 
 
 class PurePursuitAgent(Agent):
-    def __init__(self, csv_path, wheelbase):
+    def __init__(self, csv_path, lookahead_distance, wheelbase):
         super(PurePursuitAgent, self).__init__(csv_path)
-        self.lookahead_distance = 1.0
+        self.lookahead_distance = lookahead_distance
         self.wheelbase = wheelbase
         self.max_reacquire = 10.
-        with open(csv_path) as f:
+        with open(csv_path, 'rb') as f:
             wpts = [tuple(line) for line in csv.reader(f)]
             self.waypoints = np.array([(float(pt[0]), float(pt[1]), float(pt[2]), float(pt[3]), float(pt[4]), float(pt[5])) for pt in wpts])
 
-    def _get_current_waypoint(self, waypoints, lookahead_distance, position, theta):
-        wpts = waypoints[:, 0:2]
-        nearest_point, nearest_dist, t, i = nearest_point_on_trajectory_py2(position, wpts)
-        if nearest_dist < lookahead_distance:
-            lookahead_point, i2, t2 = first_point_on_trajectory_intersecting_circle(position, lookahead_distance, wpts, i+t, wrap=True)
-            if i2 == None:
-                return None
-            current_waypoint = np.empty(waypoints[i2, :].shape)
-            # x, y
-            current_waypoint[0:2] = waypoints[i2, 0:2]
-            # theta
-            current_waypoint[3] = waypoints[i2, 3]
-            # speed
-            current_waypoint[2] = waypoints[i2, 2]
-            return current_waypoint
-        elif nearest_dist < self.max_reacquire:
-            return waypoints[i, :]
-        else:
-            return None
+	self.drive_pub = rospy.Publisher(
+            '/drive',
+            AckermannDriveStamped,
+            queue_size=10,
+        )
+        self.odom_sub = rospy.Subscriber(
+            '/odom',
+            Odometry,
+            self.odom_callback,
+            queue_size=10,
+        )
 
-    def plan(self, obs):
-        pose_x = obs['poses_x'][1]
-        pose_y = obs['poses_y'][1]
-        pose_theta = obs['poses_theta'][1]
+    def odom_callback(self, odom_msg):
+        pose_x = odom_msg.pose.pose.position.x
+        pose_y = odom_msg.pose.pose.position.y
         position = np.array([pose_x, pose_y])
-        lookahead_point = self._get_current_waypoint(self.waypoints, self.lookahead_distance, position, pose_theta)
-        if lookahead_point is None:
-            return self.safe_speed, 0.0
-        speed, steering_angle = get_actuation(pose_theta, lookahead_point, position, self.lookahead_distance, self.wheelbase)
-        return speed, steering_angle
+
+        orient = odom_msg.pose.pose.orientation
+        orient_euler = euler_from_quaternion([orient.x, orient.y, orient.z, orient.w])
+        yaw = orient_euler[-1]  # The last, third Euler angle is yaw
+
+        point_ahead = position + self.lookahead_distance * np.array([np.cos(yaw), np.sin(yaw)])
+        dists = np.linalg.norm(self.waypoints[:, :2] - point_ahead, axis=1)
+        which_closest = np.argmin(dists)
+        closest_point = self.waypoints[which_closest, :2]
+
+        delta = closest_point - position
+        target_yaw = np.arctan2(delta[1], delta[0])
+        yaw_correction = target_yaw - yaw
+        if yaw_correction > np.pi:
+            yaw_correction -= 2*np.pi
+        elif yaw_correction < -np.pi:
+            yaw_correction += 2*np.pi
+
+        drive = AckermannDriveStamped()
+        drive.drive.speed = 3.5
+        drive.drive.steering_angle = yaw_correction
+        self.drive_pub.publish(drive)
+
+

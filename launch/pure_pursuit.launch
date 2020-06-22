@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+  
+  <node pkg="f1tenth_gym_ros" type="pure_pursuit_node.py" name="pure_pursuit_agent" output="screen"/>
+
+</launch>

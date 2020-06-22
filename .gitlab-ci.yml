@@ -3,17 +3,29 @@ stages:
   - test
 
 
-hello world:
-  stage: build
-  script:
-    - echo "hello world"
-
-
-run ros:
-  image: ros:melodic-robot-bionic
+test_pure_pursuit:
   stage: test
-  script:
-    - mkdir catkin_ws
-    - cd catkin_ws
-    - catkin_init_workspace
+  image: ros:melodic-robot-bionic
 
+  services:
+    - name: mtdzi/f1tenth_gym:v0.0.3
+      alias: f1tenth_gym
+
+  before_script:
+      - apt update
+      - apt install -y ros-melodic-ackermann-msgs
+
+  script:
+    - echo $ROS_MASTER_URI
+    - export ROS_MASTER_URI=http://f1tenth_gym:11311/
+    - echo $ROS_MASTER_URI
+    - rostopic list
+    - mkdir -p catkin_ws/src
+    - git mv -k * ./catkin_ws/src/  # Move all files that are under version control to ./catkin_ws/src
+    - cd catkin_ws
+    - catkin_make
+    - source devel/setup.bash
+    - rostopic echo /odom
+    - roslaunch f1tenth_gym_ros pure_pursuit.launch &
+    - sleep 10
+    - rostopic echo /drive

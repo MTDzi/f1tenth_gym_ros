@@ -1,0 +1,25 @@
+concurrent = 1
+check_interval = 0
+
+[session_server]
+  session_timeout = 600
+
+[[runners]]
+  name = "gitlab-runner"
+  url = "http://gitlab/"
+  executor = "docker"
+  [runners.custom_build_dir]
+  [runners.docker]
+    host = "tcp://docker:2376"
+    tls_verify = false
+    image = "docker:latest"
+    privileged = true
+    disable_entrypoint_overwrite = false
+    oom_kill_disable = false
+    disable_cache = false
+    volumes = ["/cache"]
+    extra_hosts = ["gitlab:10.42.85.4"]
+    shm_size = 0
+    network_mode = "gitlab_default"
+  [runners.custom]
+    run_exec = ""
