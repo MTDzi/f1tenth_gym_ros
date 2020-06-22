@@ -40,7 +40,7 @@ class GymBridge(object):
         self.angle_inc = scan_fov / scan_beams
 
         csv_path = rospy.get_param('waypoints_path')
-        
+
         wheelbase = 0.3302
         mass= 3.74
         l_r = 0.17145

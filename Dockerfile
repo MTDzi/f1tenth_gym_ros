@@ -37,8 +37,7 @@ RUN pip install --upgrade pip
 
 RUN pip install numpy==1.16.0 \
                 scipy==1.2.0 \
-                zmq \
-                pyzmq \
+                pyzmq==19.0.1 \
                 Pillow \
                 gym \
                 protobuf==3.8.0 \
