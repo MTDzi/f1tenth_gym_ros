@@ -17,14 +17,14 @@ if __name__ == '__main__':
     path_to_waypoint = os.path.join(
         os.path.dirname(__file__),
         '..',
-        'waypoints',
-        'waypoints6000.csv',
+        'maps',
+        'skirk.csv',
     )
 
     pure_pursuit_agent = PurePursuitAgent(
         csv_path=path_to_waypoint,
-        lookahead_distance=2.0,
-        wheelbase=0.18,
+        lookahead_distance=3.5,
+        safe_speed=6.0,
     )
 
     rospy.spin()

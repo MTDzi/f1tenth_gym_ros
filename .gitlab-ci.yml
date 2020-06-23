@@ -8,7 +8,7 @@ test_pure_pursuit:
   image: ros:melodic-robot-bionic
 
   services:
-    - name: mtdzi/f1tenth_gym:v0.0.3
+    - name: mtdzi/f1tenth_gym:v0.0.4
       alias: f1tenth_gym
 
   before_script:

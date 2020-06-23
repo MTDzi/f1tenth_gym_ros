@@ -186,7 +186,7 @@ Visualization Manager:
       Marker Topic: /leftline_viz
       Name: Marker
       Namespaces:
-        "": true
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -194,7 +194,7 @@ Visualization Manager:
       Marker Topic: /centerline_viz
       Name: Marker
       Namespaces:
-        "": true
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -202,7 +202,7 @@ Visualization Manager:
       Marker Topic: /rightline_viz
       Name: Marker
       Namespaces:
-        "": true
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -210,7 +210,7 @@ Visualization Manager:
       Marker Topic: /mpc/closest_cpp
       Name: Marker
       Namespaces:
-        "": true
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -218,7 +218,7 @@ Visualization Manager:
       Marker Topic: /mpc/next_pos_cpp
       Name: Marker
       Namespaces:
-        "": true
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -226,7 +226,7 @@ Visualization Manager:
       Marker Topic: /mpc/poly_cpp
       Name: Marker
       Namespaces:
-        "": true
+        {}
       Queue Size: 100
       Value: true
   Enabled: true
@@ -254,25 +254,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/ThirdPersonFollower
-      Distance: 13.9812622
+      Distance: 18.8062649
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -2.34634495
-        Y: -0.147166491
+        X: -0.306006193
+        Y: -0.685533285
         Z: -4.76837158e-06
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 1.54979634
-      Target Frame: ego_racecar/laser
+      Pitch: 1.56479633
+      Target Frame: map
       Value: ThirdPersonFollower (rviz)
-      Yaw: 3.31513095
+      Yaw: 3.26013017
     Saved:
       - Class: rviz/ThirdPersonFollower
         Distance: 12.6656551

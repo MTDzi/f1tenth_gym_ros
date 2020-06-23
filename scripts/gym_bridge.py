@@ -53,6 +53,17 @@ class GymBridge(object):
         self.racecar_env.init_map(self.map_path, self.map_img_ext, False, False)
         self.racecar_env.update_params(mu, h_cg, l_r, cs_f, cs_r, I_z, mass, exec_dir, double_finish=True)
 
+        # Initial state
+        initial_state = {
+            'x': [0.0, 200.0],
+            'y': [0.0, 200.0],
+            'theta': [0.0, 0.0],
+        }
+        self.obs, _, self.done, _ = self.racecar_env.reset(initial_state)
+        self.ego_pose = [0., 0., 0.]
+        self.ego_speed = [0., 0., 0.]
+        self.ego_steer = 0.0
+
         # Keep track of latest sim state
         self.ego_scan = list(self.obs['scans'][0])
 
@@ -88,7 +99,6 @@ class GymBridge(object):
         self.ego_speed[2] = self.obs['ang_vels_z'][0]
 
     def drive_callback(self, drive_msg):
-        # TODO: trigger opp agent plan, step env, update pose and steer and vel
         ego_speed = drive_msg.drive.speed
         self.ego_steer = drive_msg.drive.steering_angle
         opp_speed = 0.
@@ -96,7 +106,7 @@ class GymBridge(object):
         action = {
             'ego_idx': 0,
             'speed': [ego_speed, opp_speed],
-            'steer': [self.ego_steer, self.opp_steer],
+            'steer': [self.ego_steer, opp_steer],
         }
         self.obs, step_reward, self.done, info = self.racecar_env.step(action)
 
