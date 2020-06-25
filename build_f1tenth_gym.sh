@@ -4,4 +4,4 @@ if [ ! -d f1tenth_gym ] ; then
 else
     echo f1tenth_gym exists, not cloning.
 fi
-docker build -t f1tenth_gym -f Dockerfile .
+docker build -t mtdzi/f1tenth_gym:v0.0.8 .

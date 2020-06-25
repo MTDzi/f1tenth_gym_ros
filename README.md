@@ -1,3 +1,38 @@
+# Introduction
+
+The purpose of this repo is to provide code and scripts for building a docker image that can be used in a GitLab CI pipeline. For that, we need to: 1) build the image locally (with an appropriate tag), and 2) push it to Docker Hub.
+
+WARNING: I've made some (simplifying) changes to the code. I figured I'll need to support it anyway, rather than rely on the parent `f1tenth/f1tenth_gym_ros` repo, so why not throw those parts that I know are redundant, and make it easier on myself?
+
+# Building the image locally
+
+WARNING: Before building take a look into the `build_f1tenth_gym.sh` script and bump up the version tag, otherwise, you might overwrite it. If you're working on your own Docker Hub account (and not `mtdzi`) this shouldn't be a problem, HOWEVER, if you have credentials for pushing to `dockerhub.com/mtdzi`,try not to overwrite the version (this will mess up the GitLab CI pipeline which might use the version that you overwrote).
+
+To build the image call:
+```bash
+./build_f1tenth_gym.sh
+```
+
+If you've taken a look into the `build_f1tenth_gym.sh` script you might have noticed that I'm cloning a particular version of the `f1tenth_gym` repo. That's for reproducibility: I want to make sure that I'm cloning *not* what's currently the latest commit on `master`.
+
+# Push the image to the Docker Hub registry
+
+This one will require you to log in:
+```bash
+docker login
+```
+and follow the prompt (provide login and password).
+
+After that's done, push the image, for example:
+```bash
+docker push DOCKER_HUB_LOGIN/f1tenth_gym:VERSION
+```
+and you should know what `DOCKER_HUB_LOGIN` and `VERSION` is specified in the `build_f1tenth_gym.sh` script.
+
+---
+What follows is the official README
+---
+
 # F1TENTH gym environment ROS communication bridge
 This is a containerized ROS communication bridge for F1TENTH gym environment.
 

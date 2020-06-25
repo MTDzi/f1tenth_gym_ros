@@ -4,18 +4,18 @@ ENV IM_IN_DOCKER Yes
 
 RUN apt-get update --fix-missing && \
     apt-get install -y \
-    python-pip
-
-RUN apt-get install -y libzmq3-dev \
-                       git \
-                       build-essential \
-                       autoconf \
-                       libtool \
-                       libeigen3-dev \
-                       cmake \
-                       vim \
-                       ros-melodic-ackermann-msgs \
-                       ros-melodic-map-server
+    python-pip \
+    libzmq3-dev \
+    git \
+    build-essential \
+    autoconf \
+    libtool \
+    libeigen3-dev \
+    cmake \
+    vim \
+    ros-melodic-ackermann-msgs \
+    ros-melodic-map-server \
+    && rm -rf /var/lib/apt/lists/*
 
 
 RUN cp -r /usr/include/eigen3/Eigen /usr/include
@@ -66,7 +66,5 @@ RUN mkdir /catkin_ws/src/f1tenth_gym_ros
 COPY . /catkin_ws/src/f1tenth_gym_ros
 
 RUN /bin/bash -c "source /opt/ros/melodic/setup.bash; cd catkin_ws; catkin_make; source devel/setup.bash"
-
-EXPOSE 11311
 
 CMD ["/catkin_ws/src/f1tenth_gym_ros/start.sh"]

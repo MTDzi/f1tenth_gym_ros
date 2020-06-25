@@ -23,15 +23,10 @@ class GymBridge(object):
         # Get params
         self.ego_scan_topic = rospy.get_param('ego_scan_topic')
         self.ego_odom_topic = rospy.get_param('ego_odom_topic')
-        self.opp_odom_topic = rospy.get_param('opp_odom_topic')
         self.ego_drive_topic = rospy.get_param('ego_drive_topic')
         self.race_info_topic = rospy.get_param('race_info_topic')
 
         self.scan_distance_to_base_link = rospy.get_param('scan_distance_to_base_link')
-
-        self.map_path = rospy.get_param('map_path')
-        self.map_img_ext = rospy.get_param('map_img_ext')
-        exec_dir = rospy.get_param('executable_dir')
 
         scan_fov = rospy.get_param('scan_fov')
         scan_beams = rospy.get_param('scan_beams')
@@ -39,21 +34,27 @@ class GymBridge(object):
         self.angle_max =  scan_fov / 2.
         self.angle_inc =  scan_fov / scan_beams
 
-        wheelbase = 0.3302
-        mass= 3.74
-        l_r = 0.17145
-        I_z = 0.04712
-        mu = 0.523
-        h_cg = 0.074
-        cs_f = 4.718
-        cs_r = 5.4562
-
         # Init gym backend
         self.racecar_env = gym.make('f110_gym:f110-v0')
-        self.racecar_env.init_map(self.map_path, self.map_img_ext, False, False)
+
+        # Init the map
+        map_path = rospy.get_param('map_path')
+        map_img_ext = rospy.get_param('map_img_ext')
+        exec_dir = rospy.get_param('executable_dir')
+        self.racecar_env.init_map(map_path, map_img_ext, False, False)
+
+        # Init the racecar
+        wheelbase = rospy.get_param('wheelbase')
+        mass = rospy.get_param('mass')
+        l_r = rospy.get_param('l_r')
+        I_z = rospy.get_param('I_z')
+        mu = rospy.get_param('mu')
+        h_cg = rospy.get_param('h_cg')
+        cs_f = rospy.get_param('cs_f')
+        cs_r = rospy.get_param('cs_r')
         self.racecar_env.update_params(mu, h_cg, l_r, cs_f, cs_r, I_z, mass, exec_dir, double_finish=True)
 
-        # Initial state
+        # Initial state of the racecar
         initial_state = {
             'x': [0.0, 200.0],
             'y': [0.0, 200.0],
@@ -65,17 +66,15 @@ class GymBridge(object):
         self.ego_steer = 0.0
 
         # Keep track of latest sim state
-        self.ego_scan = list(self.obs['scans'][0])
+        self.ego_scan = self.obs['scans'][0]
 
         # Transform broadcaster
         self.br = transform_broadcaster.TransformBroadcaster()
 
-        qsize = 1
-
         # Publishers
+        qsize = 1
         self.ego_scan_pub = rospy.Publisher(self.ego_scan_topic, LaserScan, queue_size=qsize)
         self.ego_odom_pub = rospy.Publisher(self.ego_odom_topic, Odometry, queue_size=qsize)
-        self.opp_odom_pub = rospy.Publisher(self.opp_odom_topic, Odometry, queue_size=qsize)
         self.info_pub = rospy.Publisher(self.race_info_topic, RaceInfo, queue_size=qsize)
 
         # Subscribers
@@ -87,10 +86,11 @@ class GymBridge(object):
         )
 
         # Timer
-        self.timer = rospy.Timer(rospy.Duration(0.004), self.timer_callback)
+        timestep = rospy.Duration(0.004)
+        self.timer = rospy.Timer(timestep, self.timer_callback)
 
     def update_sim_state(self):
-        self.ego_scan = list(self.obs['scans'][0])
+        self.ego_scan = self.obs['scans'][0]
         self.ego_pose[0] = self.obs['poses_x'][0]
         self.ego_pose[1] = self.obs['poses_y'][0]
         self.ego_pose[2] = self.obs['poses_theta'][0]
@@ -109,7 +109,6 @@ class GymBridge(object):
             'steer': [self.ego_steer, opp_steer],
         }
         self.obs, step_reward, self.done, info = self.racecar_env.step(action)
-
         self.update_sim_state()
 
     def timer_callback(self, timer):
@@ -140,11 +139,8 @@ class GymBridge(object):
         info = RaceInfo()
         info.header.stamp = ts
         info.ego_collision = self.obs['collisions'][0]
-        info.opp_collision = self.obs['collisions'][1]
         info.ego_elapsed_time = self.obs['lap_times'][0]
-        info.opp_elapsed_time = self.obs['lap_times'][1]
         info.ego_lap_count = self.obs['lap_counts'][0]
-        info.opp_lap_count = self.obs['lap_counts'][1]
         self.info_pub.publish(info)
 
     def publish_odom(self, ts):
